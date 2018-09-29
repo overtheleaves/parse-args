@@ -1,0 +1,15 @@
+{
+  "name": "parse-args",
+  "version": "1.0.0",
+  "description": "parse argument options",
+  "main": "parseargs.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "argv",
+    "option"
+  ],
+  "author": "overtheleaves",
+  "license": "MIT"
+}
