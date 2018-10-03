@@ -1,16 +1,18 @@
 const assert = require('assert');
 const parse = require('../');
 
-describe('compound', function() {
+describe('parse', function() {
     it('multiple arguments', function() {
         assert.deepEqual(parse([
-            '--name=owner', '--multi=foo',
-            'free', '-xyzf',
-            'eee',
+            '--name=owner',
+            '--multi=foo',
+            'free',
+            '-xyzf', 'eee',
             '-a', 'test',
             '--key', 'value',
             '-b', '--bool',
-            '--no-create', '--multi=baz',
+            '--no-create',
+            '--multi=baz',
             '--', '--not-a-flag', 'arg'
         ]), {
             x : true,
@@ -26,6 +28,5 @@ describe('compound', function() {
             name : 'owner',
             args : [ 'free', '--not-a-flag', 'arg' ]
         });
-    })
+    });
 });
-

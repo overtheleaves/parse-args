@@ -1,4 +1,4 @@
-var debug = true;
+var debug = false;
 
 module.exports = function(args) {
 
@@ -9,7 +9,8 @@ module.exports = function(args) {
 
     const result = {'args': []};
     const leftstack = [];
-    var i = 0;
+    var i;
+
     for (i = 0; i < args.length; i++) {
         const arg = args[i];
 
@@ -21,6 +22,7 @@ module.exports = function(args) {
         } else if (/^--.+/.test(arg)) { // start with '--' with no value
             if (debug) console.log('--arg-no-val = ' + arg);
             const m = arg.match(/^--(.+)$/);
+
             if (m[1].startsWith('no-')) {   // --no-xxx
                 put(result, m[1].replace('no-', ''), false);
             } else {
@@ -30,24 +32,33 @@ module.exports = function(args) {
         } else if (/^-[^-]+/.test(arg)) {    // start with '-'
             if (debug) console.log('-arg = ' + arg);
 
-            const letters = arg.slice(1).split('');
-            for (var j = 0; j < letters.length; j++) {
-                leftstack.push(letters[j]); // push one character individually
+            if (isNumber(arg)) {
+                handleValue(arg);
+            } else {
+                const letters = arg.slice(1).split('');
+                for (var j = 0; j < letters.length; j++) {
+                    leftstack.push(letters[j]); // push one character individually
+                }
             }
+
         } else if ('--' === arg) { // end of the options
             break;
         } else {    // value
-            if (debug) console.log('val = ' + arg);
-            // match last leftstack item with value
-            const k = leftstack.pop();
+            handleValue(arg);
+        }
+    }
 
-            if (typeof k === 'undefined') put(result, 'args', arg);
-            else put(result, k, arg);
+    function handleValue(val) {
+        if (debug) console.log('val = ' + val);
+        // match last leftstack item with value
+        const k = leftstack.pop();
 
-            // pop leftover
-            for (var j = 0; j < leftstack.length; j++) {
-                put(result, leftstack.pop(), true);
-            }
+        if (typeof k === 'undefined') put(result, 'args', val);
+        else put(result, k, val);
+
+        // pop leftover
+        for (var j = 0; j < leftstack.length; j++) {
+            put(result, leftstack.pop(), true);
         }
     }
 
@@ -68,6 +79,8 @@ module.exports = function(args) {
 
 function put(obj, key, value) {
 
+    value = isNumber(value) ? Number(value) : value;
+
     if (obj[key] !== undefined) {
         if (obj[key] instanceof Array) {
             obj[key].push(value);
@@ -82,4 +95,11 @@ function put(obj, key, value) {
     } else {
         obj[key] = value;
     }
+}
+
+function isNumber(s) {
+    if (typeof s === 'number') return true;
+    if (/^0x[0-9a-fA-F]+$/i.test(s)) return true;
+    if (/^[-+]?(\d+(\.\d*)?|\.\d+)(e[-+]?\d+)?$/.test(s)) return true;
+    return false;
 }
